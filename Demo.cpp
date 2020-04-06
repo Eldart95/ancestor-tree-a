@@ -6,7 +6,7 @@
  */
 
 #include "FamilyTree.hpp"
-
+#include "FamilyTree.cpp"
 #include <iostream>
 using namespace std;
 
@@ -30,7 +30,7 @@ int main() {
 	cout << T.relation("Yosef") << endl;  // prints "me"
 
 	cout << T.find("mother") << endl;  // prints "Rachel"
-	cout << T.find("great-great-grandfather") << endl;  // prints "Avraham"
+	cout << T.find("great-great-grandfather") << endl;  // prints "Terah"
 	try {
 		cout << T.find("uncle") << endl;  // throws an exception
 	} catch (const exception& ex) {
