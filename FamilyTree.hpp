@@ -4,9 +4,8 @@
 namespace family{
     class Tree{
         
-        
-        struct Node* root;
         public:
+        struct Node* root;
         Tree();
         ~Tree();
         Tree(std::string root);
@@ -36,6 +35,7 @@ namespace family{
             std::string relation;
             public:
             Node(std::string name);
+            Node();
     
         };
 
