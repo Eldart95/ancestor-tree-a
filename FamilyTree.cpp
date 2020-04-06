@@ -209,7 +209,7 @@ void Tree::remove_sub(Node* t,std::string name){
         if(t->mother->mother!=NULL) freeALL(t->mother);
         delete(t->mother);
         t->mother=NULL;
-        return;
+        return; 
     }
     else {
         if(t->father!=NULL ) remove_sub(t->father,name);
