@@ -11,6 +11,9 @@ struct Mexception : std::exception {
     };
 
 using namespace family;
+Node::Node(){
+
+}
 Node::Node(std::string n){
     name = n;
     mother = NULL;
@@ -18,7 +21,8 @@ Node::Node(std::string n){
     son = NULL;
 }
 Tree::Tree(){
-    root=NULL;
+    Node* temp = new Node();
+    root=temp;
 }
 
 Tree::~Tree(){
@@ -34,11 +38,7 @@ Tree::Tree(std::string n){
 
 
 Tree& Tree::T(std::string root){
-    Tree t = Tree(root);
-    Tree& tr = t;
-    
-    return tr; 
-    
+    return *this;
 } 
 void Tree::addF(Node* t,std::string son,std::string dad,int count){
     if(t->name==son){
@@ -52,11 +52,12 @@ void Tree::addF(Node* t,std::string son,std::string dad,int count){
             }
             t->father->relation+="grandfather";
         }
-        return;
+        
     }
+    
     count++;
-    if(t->father!=NULL) return addF(t->father,son,dad,count);
-    if(t->mother!=NULL) return addF(t->mother,son,dad,count);
+    if(t->father!=NULL) addF(t->father,son,dad,count);
+    if(t->mother!=NULL) addF(t->mother,son,dad,count);
 }
 void Tree::addM(Node* t,std::string son,std::string mom,int count){
     if(t->name==son){
@@ -70,22 +71,23 @@ void Tree::addM(Node* t,std::string son,std::string mom,int count){
             }
             t->mother->relation+="grandmother";
         }
-        return;
+        
     }
     count++;
-    if(t->father!=NULL) return addM(t->father,son,mom,count);
-    if(t->mother!=NULL) return addM(t->mother,son,mom,count);
+    if(t->father!=NULL) addM(t->father,son,mom,count);
+    if(t->mother!=NULL) addM(t->mother,son,mom,count);
 }
    
 Tree& Tree::addFather(std::string son, std::string dad){
-    
-    addF(root,son,dad,1);
+            
+    Node*temp = root;
+    addF(temp,son,dad,1);
     Tree& tr = *this;
     return tr;
 }
 Tree& Tree::addMother(std::string son, std::string mom){
-    
-    addM(root,son,mom,1); 
+    Node* temp = root;
+    addM(temp,son,mom,1); 
     Tree& tr = *this;
     return tr;
 
@@ -219,6 +221,8 @@ void Tree::remove_sub(Node* t,std::string name){
 }
 
 void Tree::remove(std::string name){
+    if(root->father!=NULL && root->father->name==name)  remove_sub(root,name);
+    if(root->mother!=NULL && root->mother->name==name)  remove_sub(root,name);
     
     if(root->name==name){
         if(root->father!=NULL) freeALL(root->father);
