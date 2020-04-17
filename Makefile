@@ -4,21 +4,17 @@ CXX=clang++-9
 CXXFLAGS=-std=c++2a
 
 HEADERS := $(wildcard *.h*)
-TEACHER_SOURCES := Demo.cpp TestCounter.cpp Test.cpp
-STUDENT_SOURCES := $(filter-out $(TEACHER_SOURCES), $(wildcard *.cpp))
+STUDENT_SOURCES := $(filter-out $(wildcard Test*.cpp), $(wildcard *.cpp))
 STUDENT_OBJECTS := $(subst .cpp,.o,$(STUDENT_SOURCES))
 
-run: demo
+run: test
 	./$^
 
-demo: Demo.o $(STUDENT_OBJECTS)
-	$(CXX) $(CXXFLAGS) $^ -o demo
-
-test: TestCounter.o Test.o $(STUDENT_OBJECTS)
+test: TestRunner.o Test_netanel.o Test_hila.o $(STUDENT_OBJECTS)
 	$(CXX) $(CXXFLAGS) $^ -o test
 
 %.o: %.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) --compile $< -o $@
 
 clean:
-	rm -f *.o demo test
+	rm -f *.o test

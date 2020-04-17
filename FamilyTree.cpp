@@ -5,7 +5,7 @@
 
 struct Mexception : std::exception {
         const char* what() const throw() {
-            const char* ex = "The three cant handle this relation";
+            const char* ex = "Error,illegal operation";
             return ex;
             }
     };
@@ -26,7 +26,6 @@ Tree::Tree(){
 }
 
 Tree::~Tree(){
-    freeALL(root);
     delete(root);
 
 }
@@ -42,6 +41,7 @@ Tree& Tree::T(std::string root){
 } 
 void Tree::addF(Node* t,std::string son,std::string dad,int count){
     if(t->name==son){
+        if(t->father) throw Mexception();
         Node* temp = new Node(dad);
         t->father=temp;
         if(count==1) t->father->relation="father";
@@ -61,6 +61,7 @@ void Tree::addF(Node* t,std::string son,std::string dad,int count){
 }
 void Tree::addM(Node* t,std::string son,std::string mom,int count){
     if(t->name==son){
+        if(t->mother) throw Mexception();
         Node* temp = new Node(mom);
         t->mother=temp;
         if(count==1) t->mother->relation="mother";
@@ -79,13 +80,14 @@ void Tree::addM(Node* t,std::string son,std::string mom,int count){
 }
    
 Tree& Tree::addFather(std::string son, std::string dad){
-            
+    if(relation(son)=="unrelated") throw Mexception();       
     Node*temp = root;
     addF(temp,son,dad,1);
     Tree& tr = *this;
     return tr;
 }
 Tree& Tree::addMother(std::string son, std::string mom){
+    if(relation(son)=="unrelated") throw Mexception();
     Node* temp = root;
     addM(temp,son,mom,1); 
     Tree& tr = *this;
@@ -155,9 +157,12 @@ std::string Tree::relation(std::string name){
 std::string Tree::name_locate(Node* t,std::string relation){
     if(t->relation==relation) return t->name;
 
-    else if(t->father==NULL && t->mother!=NULL) return name_locate(t->mother,relation);
+    if(t->father==NULL && t->mother!=NULL) return name_locate(t->mother,relation);
     else if(t->father!=NULL && t->mother==NULL) return name_locate(t->father,relation);
-    else if(t->father!=NULL && t->mother!=NULL) return name_locate(t->father,relation)+name_locate(t->mother,relation);
+    else if(t->father!=NULL && t->mother!=NULL){
+        if(name_locate(t->father,relation)!="") return name_locate(t->father,relation);
+        if(name_locate(t->mother,relation)!="") return name_locate(t->mother,relation);
+    }
     return "";
 
 
@@ -167,9 +172,9 @@ std::string Tree::find(std::string relation){
     std::string ans = "";
     if(root->relation==relation) return root->name;
     else {
-        if(root->father!=NULL && root->mother==NULL) ans+= name_locate(root->father,relation);
-        else if(root->mother!=NULL && root->father==NULL) ans+= name_locate(root->mother,relation);
-        else if(root->mother!=NULL && root->father!=NULL) ans+= name_locate(root->mother,relation)+name_locate(root->father,relation);
+        if(root->father!=NULL) ans= name_locate(root->father,relation);
+        if(root->mother!=NULL && ans=="") ans= name_locate(root->mother,relation);
+        //else if(root->mother!=NULL && root->father!=NULL) ans= name_locate(root->mother,relation)+name_locate(root->father,relation);
     }
     if(ans=="") {
         throw Mexception();
@@ -192,47 +197,57 @@ void Tree::display(){
     disp(root,0);
 
 }
-void Tree::freeALL(Node* temp){
-    if(temp->father!=NULL) freeALL(temp->father);
-    if(temp->mother!=NULL) freeALL(temp->mother);
-    if(temp->father==NULL && temp->mother==NULL) delete(temp);
+void Tree::freeALL(Node* t){
+    if(t->father){
+        freeALL(t->father);
+    }
+    if(t->mother){
+        freeALL(t->mother);
+    }
+    if(!t->father && !t->mother) delete(t);
 }
 
+
 void Tree::remove_sub(Node* t,std::string name){
-    if(t->father!=NULL && t->father->name==name){
-        if(t->father->father!=NULL) freeALL(t->father);
-        if(t->father->mother!=NULL) freeALL(t->mother);
-        delete(t->father);
-        t->father=NULL;
-        return;
+    if(t->father){
+        if(t->father->name==name){
+            freeALL(t->father);
+            t->father=NULL;
+        }
+        else remove_sub(t->father,name);
     }
-    else if(t->mother!=NULL && t->mother->name==name){
-        if(t->mother->father!=NULL) freeALL(t->father);
-        if(t->mother->mother!=NULL) freeALL(t->mother);
-        delete(t->mother);
-        t->mother=NULL;
-        return; 
+    if(t->mother){
+        if(t->mother->name==name){
+            freeALL(t->mother);
+            t->mother=NULL;
+
+        }
+        else remove_sub(t->mother,name);
     }
-    else {
-        if(t->father!=NULL ) remove_sub(t->father,name);
-        if(t->mother!=NULL ) remove_sub(t->mother,name);
-    }
+
+  
 
 }
 
 void Tree::remove(std::string name){
-    if(root->father!=NULL && root->father->name==name)  remove_sub(root,name);
-    if(root->mother!=NULL && root->mother->name==name)  remove_sub(root,name);
-    
-    if(root->name==name){
-        if(root->father!=NULL) freeALL(root->father);
-        if(root->mother!=NULL) freeALL(root->mother);
-        delete(root);
-        return;
+    if(relation(name)=="unrelated") throw Mexception();
+    if(root->name==name) throw Mexception();
+    if(root->father){
+        if(root->father->name==name){
+            freeALL(root->father);
+            root->father=NULL;
+        }
+        else remove_sub(root->father,name);
+    }
+    if(root->mother){
+        if(root->mother->name==name){
+            freeALL(root->mother);
+            root->mother=NULL;
+
+        }
+        else remove_sub(root->mother,name);
     }
     
-    else {
-        if(root->father!=NULL) remove_sub(root->father,name);
-        if(root->mother!=NULL) remove_sub(root->mother,name);
-    }
+    
+
 }
