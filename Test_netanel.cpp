@@ -135,7 +135,7 @@ TEST_CASE("find") {
 
     CHECK(T->find("great-grandmother") == "Sara"); 
 
-    std::string great_great_grandfather;
+    string great_great_grandfather;
     CHECK_NOTHROW(great_great_grandfather = T->find("great-great-grandfather")); 
     CHECK((great_great_grandfather == "Terah" ||
            great_great_grandfather == "Haran" || 
